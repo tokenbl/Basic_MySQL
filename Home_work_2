@@ -1,0 +1,65 @@
+1. Установите СУБД MySQL. Создайте в домашней директории файл .my.cnf, задав в нем логин и пароль, который указывался при установке.
+
+token_black@tokenbl-X705UNR:~$ sudo apt-get install mysql-server
+sudo service mysql start
+sudo mysql_secure_installation
+token_black@tokenbl-X705UNR:~$ sudo service mysql status
+● mysql.service - MySQL Community Server
+     Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2021-06-01 21:25:15 MSK; 57min ago
+   Main PID: 1206 (mysqld)
+     Status: "Server is operational"
+      Tasks: 39 (limit: 19005)
+     Memory: 395.8M
+     CGroup: /system.slice/mysql.service
+             └─1206 /usr/sbin/mysqld
+
+июн 01 21:25:12 tokenbl-X705UNR systemd[1]: Starting MySQL Community Server...
+июн 01 21:25:15 tokenbl-X705UNR systemd[1]: Started MySQL Community Server.
+
+token_black@tokenbl-X705UNR:~$ sudo mysql -u root
+
+token_black@tokenbl-X705UNR:/etc/mysql$ cd /etc/mysql
+token_black@tokenbl-X705UNR:/etc/mysql$ ls
+conf.d      debian-start  my.cnf.fallback  mysql.conf.d
+debian.cnf  my.cnf        mysql.cnf
+
+2. Создайте базу данных example, разместите в ней таблицу users, состоящую из двух столбцов, числового id и строкового name.
+
+mysql> CREATE DATABASE example;
+Query OK, 1 row affected (0,01 sec)
+
+mysql> USE example;
+Database changed
+mysql> CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(255) COMMENT 'User name');
+Query OK, 0 rows affected (0,04 sec)
+mysql> exit
+Bye
+
+3. Создайте дамп базы данных example из предыдущего задания, разверните содержимое дампа в новую базу данных sample.
+
+token_black@tokenbl-X705UNR:~$ sudo mysqldump -u root example > sample.sql
+[sudo] password for token_black: 
+token_black@tokenbl-X705UNR:~$ 
+token_black@tokenbl-X705UNR:~$ sudo mysql -u root sample < sample.sql
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| example            |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sample             |
+| sys                |
++--------------------+
+6 rows in set (0,00 sec)
+
+mysql> DESCRIBE sample.users;
++-------+-----------------+------+-----+---------+----------------+
+| Field | Type            | Null | Key | Default | Extra          |
++-------+-----------------+------+-----+---------+----------------+
+| id    | bigint unsigned | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(255)    | YES  |     | NULL    |                |
++-------+-----------------+------+-----+---------+----------------+
+2 rows in set (0,00 sec)
